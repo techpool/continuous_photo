@@ -11,7 +11,7 @@ var fs = require('fs');
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-    var accountId, fileId, folderId, fileName, kloudlessImageURL, urlSet;
+    var accountId, fileId, folderId, fileName, kloudlessImageURL, urlSet, messageId;
 
     async.waterfall([
         function(cb) {
@@ -102,13 +102,13 @@ router.get('/', function(req, res, next) {
                 for (var i = 0; i < urlSet.length; i++) {
                     var eachurlSet = urlSet[i];
                     if (eachurlSet) {
-                    	urlSet = eachurlSet
+                        urlSet = eachurlSet
                         cb()
                         break;
                     }
                 }
             } else {
-            	cb()
+                cb()
             }
         },
 
@@ -136,10 +136,10 @@ router.get('/', function(req, res, next) {
 
             request(requestOptions, function(error, response, body) {
 
-            	if (error) {
-            		callback(error);
-            		return;
-            	}
+                if (error) {
+                    callback(error);
+                    return;
+                }
                 console.log(JSON.stringify(body));
 
                 var responseText = 'I think it is ';
@@ -155,12 +155,46 @@ router.get('/', function(req, res, next) {
         },
 
         function(responseText, cb) {
-        	const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
-        	var requestOptions = {
+            const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
+            var requestOptions = {
                 'uri': 'https://technica-7f86.restdb.io/rest/visionapi',
-                'method': 'POST',
+                'method': 'GET',
                 'headers': {
-                	'cache-control': 'no-cache',
+                    'cache-control': 'no-cache',
+                    'x-apikey': REST_DB_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                json: true
+            }
+
+            request(requestOptions, function(error, response, body) {
+                if (error) {
+                    cb(error);
+                    return;
+                }
+                // console.log(JSON.stringify(body));
+
+                if (body.length == 0) {
+                    cb(null, 'POST', responseText);
+                } else {
+                	messageId = body[0]._id;
+                    cb(null, 'PUT', responseText);
+                }
+            });
+        },
+
+        function(method, responseText, cb) {
+
+        	var requestUrl = 'https://technica-7f86.restdb.io/rest/visionapi';
+        	if (method == 'PUT') {
+        		requestUrl += '/' + messageId;
+        	}
+            const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
+            var requestOptions = {
+                'uri': requestUrl,
+                'method': method,
+                'headers': {
+                    'cache-control': 'no-cache',
                     'x-apikey': REST_DB_API_KEY,
                     'Content-Type': 'application/json'
                 },
@@ -171,10 +205,10 @@ router.get('/', function(req, res, next) {
             }
 
             request(requestOptions, function(error, response, body) {
-            	if (error) {
-            		cb(error);
-            		return;
-            	}
+                if (error) {
+                    cb(error);
+                    return;
+                }
                 console.log(JSON.stringify(body));
 
                 cb(null);
@@ -182,11 +216,11 @@ router.get('/', function(req, res, next) {
         }
 
     ], function(error, responseText) {
-    	if (error) {
-    		res.send(error);
-    	} else {
-    		res.send(responseText);
-    	}
+        if (error) {
+            res.send(error);
+        } else {
+            res.send(responseText);
+        }
     });
 });
 
