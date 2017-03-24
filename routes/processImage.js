@@ -112,7 +112,7 @@ router.get('/', function(req, res, next) {
             }
         },
 
-            function(callback) {
+        function(callback) {
 
             const COMPUTER_VISION_KEY = '3936f08cea1f4a578988ef3cbf38cf0c';
             var query = {
@@ -217,9 +217,9 @@ router.get('/', function(req, res, next) {
         function(callback) {
 
             const EMOTION_DETECTION_KEY = 'cbe628eec6a74cfea123c1e3c4e37769';
-          
+
             var requestOptions = {
-                'uri': 'https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize' ,
+                'uri': 'https://westus.api.cognitive.microsoft.com/emotion/v1.0/recognize',
                 'method': 'POST',
                 'headers': {
                     'Ocp-Apim-Subscription-Key': EMOTION_DETECTION_KEY,
@@ -245,24 +245,24 @@ router.get('/', function(req, res, next) {
                 //     var eachTag = body.tags[i];
                 //     responseText += eachTag.name + ', ';
                 // }
-                var responseText = 'I think the prominent emotion is ' ;
-                if( body.length == 0 ) {
+                var responseText = 'I think the prominent emotion is ';
+                if (body.length == 0) {
                     responseText = 'No emotion detected'
+                } else {
+
+                    var scores = body[0].scores;
+                    var emotion;
+                    var max = 0;
+                    for (var prop in scores) {
+                        var eachScore = scores[prop]
+                        if (max < eachScore) {
+                            max = eachScore
+                            emotion = prop
+                        }
+                    }
+                    responseText += emotion
+
                 }
-                else {
-                   
-                       var scores = body[0].scores ;
-                       var emotion ;
-                       var max = 0 ; 
-                       for(var prop in scores) {
-                           var eachScore = scores[prop] 
-                           if(max < eachScore) {
-                               max = eachScore 
-                               emotion = prop 
-                           }
-                           responseText += emotion
-                       }              
-                   }
                 console.log(responseText)
                 callback(null, responseText);
             });
@@ -291,7 +291,7 @@ router.get('/', function(req, res, next) {
                 if (body.length == 0) {
                     cb(null, 'POST', responseText);
                 } else {
-                	messageId = body[0]._id;
+                    messageId = body[0]._id;
                     cb(null, 'PUT', responseText);
                 }
             });
@@ -299,10 +299,10 @@ router.get('/', function(req, res, next) {
 
         function(method, responseText, cb) {
 
-        	var requestUrl = 'https://technica-7f86.restdb.io/rest/emotionapi';
-        	if (method == 'PUT') {
-        		requestUrl += '/' + messageId;
-        	}
+            var requestUrl = 'https://technica-7f86.restdb.io/rest/emotionapi';
+            if (method == 'PUT') {
+                requestUrl += '/' + messageId;
+            }
             const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
             var requestOptions = {
                 'uri': requestUrl,
