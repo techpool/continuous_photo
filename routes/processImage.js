@@ -245,13 +245,13 @@ router.get('/', function(req, res, next) {
                 //     var eachTag = body.tags[i];
                 //     responseText += eachTag.name + ', ';
                 // }
-                var = 'I think the prominent emotion is ' ;
-                if( responseBody.length == 0 ) {
+                var responseText = 'I think the prominent emotion is ' ;
+                if( body.length == 0 ) {
                     responseText = 'No emotion detected'
                 }
                 else {
                    
-                       var scores = responseBody[0].scores ;
+                       var scores = body[0].scores ;
                        var emotion ;
                        var max = 0 ; 
                        for(var prop in scores) {
