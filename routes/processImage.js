@@ -245,7 +245,7 @@ router.get('/', function(req, res, next) {
                 //     var eachTag = body.tags[i];
                 //     responseText += eachTag.name + ', ';
                 // }
-                var responseText = 'I think the prominent emotion is ';
+                var responseText = 'The person is ';
                 if (body.length == 0) {
                     responseText = 'No emotion detected'
                 } else {
@@ -260,6 +260,7 @@ router.get('/', function(req, res, next) {
                             emotion = prop
                         }
                     }
+                    emotion = convertEmotion(emotion) ;
                     responseText += emotion
 
                 }
@@ -507,5 +508,30 @@ router.get('/', function(req, res, next) {
         }
     });
 });
+function convertEmotion(emotion) {
+    switch (emotion) {
+        case "happiness" :
+            return "happy"
+       case "anger":  
+        return "angry"
+      case "contempt": 
+        return "contemptful" ;
+      case "disgust": 
+        return "disgustful"
+      case "fear": 
+        return "scared"
+      case "happiness": 
+        return "happy"
+      case "neutral":
+        return "neutral"
+      case "sadness": 
+        return "sad"
+      case "surprise" : 
+        return  "surprised"
 
+    }
+
+       
+
+}
 module.exports = router;
