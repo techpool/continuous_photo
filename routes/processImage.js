@@ -353,7 +353,7 @@ router.get('/', function(req, res, next) {
                 }
 
                 if (response.statusCode == 400 || !body[0]) {
-                    callback(null, 'not found');
+                    callback(null, 'no person');
                     return;
                 }
 
@@ -366,8 +366,8 @@ router.get('/', function(req, res, next) {
 
         function(faceId, callback) {
 
-            if (faceId == 'not found') {
-                callback(null, 'not found');
+            if (faceId == 'no person') {
+                callback(null, 'no person');
                 return;
             }
 
@@ -412,6 +412,11 @@ router.get('/', function(req, res, next) {
 
             if (personId == 'not found') {
                 callback(null, 'This is a new person.');
+                return;
+            }
+
+            if (personId == 'no person') {
+                callback(null, 'There is no person in the image');
                 return;
             }
 
