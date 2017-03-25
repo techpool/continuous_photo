@@ -327,8 +327,178 @@ router.get('/', function(req, res, next) {
 
                 cb(null);
             });
-        }
+        },
 
+        function(callback) {
+
+            const COMPUTER_FACE_API_KEY = '4e354449b23647b6921fe8afbe2c51bc';
+            var requestOptions = {
+                'uri': 'https://westus.api.cognitive.microsoft.com/face/v1.0/detect?returnFaceId=true',
+                'method': 'POST',
+                'headers': {
+                    'Ocp-Apim-Subscription-Key': COMPUTER_FACE_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                'json': {
+                    'url': urlSet
+                }
+            }
+
+            request(requestOptions, function(error, response, body) {
+
+                if (error) {
+                    callback(error);
+                    return;
+                }
+
+                if (response.statusCode == 400) {
+                    callback(null, 'not found');
+                    return;
+                }
+
+                var faceId = body[0].faceId;
+                callback(null, faceId);
+            });
+        },
+
+        function(faceId, callback) {
+
+            if (faceId == 'not found') {
+                callback(null, 'not found');
+                return;
+            }
+
+            const COMPUTER_FACE_API_KEY = '4e354449b23647b6921fe8afbe2c51bc';
+            var requestOptions = {
+                'uri': 'https://westus.api.cognitive.microsoft.com/face/v1.0/identify',
+                'method': 'POST',
+                'headers': {
+                    'Ocp-Apim-Subscription-Key': COMPUTER_FACE_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                'json': {
+                    "personGroupId": "friends",
+                    "faceIds": [
+                        faceId
+                    ],
+                    "maxNumOfCandidatesReturned": 1,
+                    "confidenceThreshold": 0.7
+                }
+            }
+
+            request(requestOptions, function(error, response, body) {
+
+                if (error) {
+                    callback(error);
+                    return;
+                }
+
+                if (response.body[0].candidates.length == 0) {
+                    callback(null, 'not found');
+                    return;
+                }
+
+                console.log(body)
+                var personId = body[0].candidates[0].personId;
+                console.log(body[0].candidates)
+                callback(null, personId);
+            });
+        },
+
+        function(personId, callback) {
+
+            if (personId == 'not found') {
+                callback(null, 'This is a new person.');
+                return;
+            }
+
+            const COMPUTER_FACE_API_KEY = '4e354449b23647b6921fe8afbe2c51bc';
+            var requestOptions = {
+                'uri': 'https://westus.api.cognitive.microsoft.com/face/v1.0/persongroups/friends/persons/' + personId,
+                'method': 'GET',
+                'headers': {
+                    'Ocp-Apim-Subscription-Key': COMPUTER_FACE_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                json: true
+            }
+
+            request(requestOptions, function(error, response, body) {
+
+                if (error) {
+                    callback(error);
+                    return;
+                }
+
+                console.log('-----person-------')
+                console.log(body)
+                console.log('-----person-------')
+                var name = body.name;
+                var responseText = 'The person in front is ' + name
+                callback(null, responseText);
+            });
+        },
+
+        function(responseText, cb) {
+            const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
+            var requestOptions = {
+                'uri': 'https://technica-7f86.restdb.io/rest/faceapi',
+                'method': 'GET',
+                'headers': {
+                    'cache-control': 'no-cache',
+                    'x-apikey': REST_DB_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                json: true
+            }
+
+            request(requestOptions, function(error, response, body) {
+                if (error) {
+                    cb(error);
+                    return;
+                }
+                // console.log(JSON.stringify(body));
+
+                if (body.length == 0) {
+                    cb(null, 'POST', responseText);
+                } else {
+                    messageId = body[0]._id;
+                    cb(null, 'PUT', responseText);
+                }
+            });
+        },
+
+        function(method, responseText, cb) {
+
+            var requestUrl = 'https://technica-7f86.restdb.io/rest/faceapi';
+            if (method == 'PUT') {
+                requestUrl += '/' + messageId;
+            }
+            const REST_DB_API_KEY = '2dbd5be6c5a14f7a7afd555d0d1403c9b84ab';
+            var requestOptions = {
+                'uri': requestUrl,
+                'method': method,
+                'headers': {
+                    'cache-control': 'no-cache',
+                    'x-apikey': REST_DB_API_KEY,
+                    'Content-Type': 'application/json'
+                },
+                'body': {
+                    "message": responseText
+                },
+                json: true
+            }
+
+            request(requestOptions, function(error, response, body) {
+                if (error) {
+                    cb(error);
+                    return;
+                }
+                console.log(JSON.stringify(body));
+
+                cb(null);
+            });
+        }
     ], function(error, responseText) {
         if (error) {
             res.send(error);
