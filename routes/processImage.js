@@ -352,11 +352,13 @@ router.get('/', function(req, res, next) {
                     return;
                 }
 
-                if (response.statusCode == 400) {
+                if (response.statusCode == 400 || !body[0]) {
                     callback(null, 'not found');
                     return;
                 }
 
+
+                console.log(body)
                 var faceId = body[0].faceId;
                 callback(null, faceId);
             });
